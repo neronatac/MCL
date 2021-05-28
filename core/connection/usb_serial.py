@@ -41,16 +41,23 @@ class USBSerial(AbstractConnection):
         self.com = serial.Serial(port, self._baudrate)
 
     def read(self, size: int):
-        return self.com.read(size)
+        ret = self.com.read(size)
+        logger.debug(f"USBSerial read {ret}")
+        return ret
 
     def read_all(self):
-        return self.com.read_all()
+        ret = self.com.read_all()
+        logger.debug(f"USBSerial read {ret}")
+        return ret
 
     def read_until(self, expected: bytes = b'\n', size: Optional[int] = None):
-        return self.com.read_until(expected, size)
+        ret = self.com.read_until(expected, size)
+        logger.debug(f"USBSerial read {ret}")
+        return ret
 
     def flush(self):
         self.com.flush()
 
     def write(self, data: bytes):
+        logger.debug(f"USBSerial writing {data}")
         return self.com.write(data)

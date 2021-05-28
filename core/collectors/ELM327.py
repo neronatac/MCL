@@ -108,6 +108,10 @@ class ELM327:
 
 
 if __name__ == '__main__':
+    from core.utils.log import setup_log
+
+    setup_log()
+
     conn = USBSerial()
     obd = ELM327(conn)
     print(obd.send_command('I'))
