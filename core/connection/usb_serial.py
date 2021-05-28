@@ -11,16 +11,17 @@ logger = logging.getLogger()
 
 class USBSerial(AbstractConnection):
     @property
-    def baud(self):
-        return self._baud
+    def baudrate(self):
+        return self.com.baudrate
 
-    @baud.setter
-    def baud(self, value):
-        self._baud = value
+    @baudrate.setter
+    def baudrate(self, value):
+        self.com.baudrate = value
+        self._baudrate = value
         logger.debug(f"Baudrate set to {value}")
 
-    def __init__(self, port=None, baud: int = 38400):
-        self._baud: int = baud
+    def __init__(self, port=None, baudrate: int = 38400):
+        self._baudrate: int = baudrate
         self.com: serial.Serial = None
 
         # Connection to USB device
@@ -37,7 +38,7 @@ class USBSerial(AbstractConnection):
                 return p.device
 
     def connect(self, port):
-        self.com = serial.Serial(port, 38400)
+        self.com = serial.Serial(port, self._baudrate)
 
     def read(self, size: int):
         return self.com.read(size)
