@@ -6,8 +6,6 @@ from typing import Union
 from core.connection.abstract_conn import AbstractConnection
 from core.connection.usb_serial import USBSerial
 
-logger = logging.getLogger()
-
 
 class VersionError(Exception):
     pass
@@ -34,7 +32,7 @@ class ELM327:
 
     @baudrate.setter
     def baudrate(self, value):
-        warnings.warn("This method has not been tested in reality!")
+        warnings.warn("Baudrate: this method has not been tested in reality!")
 
         if not isinstance(self._conn, USBSerial):
             raise AttributeError(f"No baudrate defined when connection is {type(self._conn)} (USBSerial needed)")
@@ -67,6 +65,8 @@ class ELM327:
         self._read()
 
     def __init__(self, connection):
+        self.logger = logging.getLogger('MCL.ELM327')
+
         self.version_major: int = -1
         self.version_minor: int = -1
 
@@ -80,13 +80,13 @@ class ELM327:
         self.reset()
 
     def reset(self):
-        logger.info(f"ELM327 reset")
+        self.logger.info(f"reset")
         ver = self.send_command(b'AT Z')
         if not ver.startswith("ELM327"):
             raise ConnectionError(f"Bad reset message received: {ver}")
         else:
             self.version_major, self.version_minor = (int(v) for v in ver[8:].split('.'))
-            logger.info(f"ELM327 version: {self.version_major}.{self.version_minor}")
+            self.logger.info(f"version: {self.version_major}.{self.version_minor}")
 
     def send_command(self, cmd: Union[bytes, str]):
         if isinstance(cmd, str):
@@ -108,9 +108,10 @@ class ELM327:
 
 
 if __name__ == '__main__':
-    from core.utils.log import setup_log
+    from core.utils.log import setup_log, set_console_log_level
 
     setup_log()
+    set_console_log_level(logging.DEBUG)
 
     conn = USBSerial()
     obd = ELM327(conn)

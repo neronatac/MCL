@@ -6,8 +6,6 @@ from serial.tools.list_ports import comports
 
 from core.connection.abstract_conn import AbstractConnection
 
-logger = logging.getLogger()
-
 
 class USBSerial(AbstractConnection):
     @property
@@ -18,9 +16,11 @@ class USBSerial(AbstractConnection):
     def baudrate(self, value):
         self.com.baudrate = value
         self._baudrate = value
-        logger.debug(f"Baudrate set to {value}")
+        self.logger.debug(f"Baudrate set to {value}")
 
     def __init__(self, port=None, baudrate: int = 38400):
+        self.logger = logging.getLogger('MCL.USBSerial')
+
         self._baudrate: int = baudrate
         self.com: serial.Serial = None
 
@@ -29,12 +29,11 @@ class USBSerial(AbstractConnection):
             port = self._search_port()
         self.connect(port)
 
-    @staticmethod
-    def _search_port():
+    def _search_port(self):
         ports = comports()
         for p in ports:
             if p.vid == 0x0403 and p.pid == 0x6001:
-                logger.debug(f"Found ELM327-USB: {p.device}")
+                self.logger.debug(f"Found ELM327-USB: {p.device}")
                 return p.device
 
     def connect(self, port):
@@ -42,22 +41,22 @@ class USBSerial(AbstractConnection):
 
     def read(self, size: int):
         ret = self.com.read(size)
-        logger.debug(f"USBSerial read {ret}")
+        self.logger.debug(f"read {ret}")
         return ret
 
     def read_all(self):
         ret = self.com.read_all()
-        logger.debug(f"USBSerial read {ret}")
+        self.logger.debug(f"read {ret}")
         return ret
 
     def read_until(self, expected: bytes = b'\n', size: Optional[int] = None):
         ret = self.com.read_until(expected, size)
-        logger.debug(f"USBSerial read {ret}")
+        self.logger.debug(f"read {ret}")
         return ret
 
     def flush(self):
         self.com.flush()
 
     def write(self, data: bytes):
-        logger.debug(f"USBSerial writing {data}")
+        self.logger.debug(f"writing {data}")
         return self.com.write(data)

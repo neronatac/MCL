@@ -1,12 +1,16 @@
 import logging
 from datetime import datetime
+from typing import Optional
+
+console_h: Optional[logging.StreamHandler] = None
 
 
 def setup_log():
-    logger = logging.getLogger()
+    global console_h
+    logger = logging.getLogger('MCL')
     logger.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 
     s = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     debugfile_fh = logging.FileHandler(f'debug_{s}.log', 'w')
@@ -19,3 +23,9 @@ def setup_log():
 
     logger.addHandler(debugfile_fh)
     logger.addHandler(console_h)
+
+
+def set_console_log_level(lvl):
+    if console_h is None:
+        raise AttributeError("The logging system is not set-up!")
+    console_h.setLevel(lvl)
