@@ -23,18 +23,27 @@ class USBSerial(AbstractConnection):
 
         self._baudrate: int = baudrate
         self.com: serial.Serial = None
+        self.hw_ref = None
 
         # Connection to USB device
         if port is None:
             port = self._search_port()
         self.connect(port)
+        self.logger.info("ELM327 connected!")
 
     def _search_port(self):
         ports = comports()
         for p in ports:
             if p.vid == 0x0403 and p.pid == 0x6001:
-                self.logger.debug(f"Found ELM327-USB: {p.device}")
+                self.hw_ref = 'FTDI'
+                self.logger.debug(f"Found ELM327-USB (FTDI): {p.device}")
                 return p.device
+            elif p.vid == 0x1A86 and p.pid == 0x7523:
+                self.hw_ref = 'CH340'
+                self.logger.debug(f"Found ELM327-USB (CH340): {p.device}")
+                return p.device
+        self.logger.error("No ELM327-USB found!")
+        raise ConnectionError("No ELM327-USB found!")
 
     def connect(self, port):
         self.com = serial.Serial(port, self._baudrate)
